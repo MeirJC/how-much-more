@@ -1,0 +1,648 @@
+            .raw-times {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            
+            .raw-time-item {
+                padding: 0.8rem;
+            }
+            
+            .raw-time-value {
+                font-size: 1.4rem;
+            }<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Much Left</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        :root {
+            --bg-primary: #0d1b0f;
+            --bg-secondary: #1a2e1f;
+            --bg-tertiary: #2d4a32;
+            --text-primary: #00ff41;
+            --text-secondary: #7cfc00;
+            --accent-green: #228b22;
+            --accent-camo-dark: #3c4b2c;
+            --accent-camo-light: #5d6b4d;
+            --accent-gold: #ffd700;
+            --accent-red: #ff0000;
+            --border-color: #4a6741;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --glow: rgba(0, 255, 65, 0.3);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #f0f8f0;
+            --bg-secondary: #e8f5e8;
+            --bg-tertiary: #d4e6d4;
+            --text-primary: #2d5a2d;
+            --text-secondary: #4a7c4a;
+            --accent-green: #228b22;
+            --accent-camo-dark: #8b9d7b;
+            --accent-camo-light: #a8b298;
+            --accent-gold: #cc8400;
+            --accent-red: #cc0000;
+            --border-color: #9cb89c;
+            --shadow: rgba(0, 0, 0, 0.2);
+            --glow: rgba(45, 90, 45, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', monospace;
+            background: 
+                radial-gradient(ellipse at top, var(--bg-tertiary) 0%, transparent 60%),
+                repeating-linear-gradient(
+                    45deg,
+                    var(--bg-primary) 0px,
+                    var(--bg-primary) 2px,
+                    var(--accent-camo-dark) 2px,
+                    var(--accent-camo-dark) 4px
+                );
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        /* Animated camouflage background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, var(--accent-camo-light) 0%, transparent 20%),
+                radial-gradient(circle at 80% 80%, var(--accent-camo-dark) 0%, transparent 25%),
+                radial-gradient(circle at 60% 30%, var(--accent-green) 0%, transparent 15%),
+                radial-gradient(circle at 30% 70%, var(--accent-camo-light) 0%, transparent 18%);
+            z-index: -1;
+            opacity: 0.1;
+            animation: camoShift 20s infinite ease-in-out;
+        }
+        
+        @keyframes camoShift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(5px) translateY(-3px); }
+            50% { transform: translateX(-3px) translateY(5px); }
+            75% { transform: translateX(2px) translateY(-2px); }
+        }
+        
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .header {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 4rem;
+            font-weight: 900;
+            text-shadow: 
+                0 0 10px var(--glow),
+                3px 3px 6px var(--shadow);
+            margin-bottom: 1rem;
+            letter-spacing: 0.2em;
+            color: var(--text-primary);
+            animation: titleGlow 2s infinite alternate ease-in-out;
+        }
+        
+        @keyframes titleGlow {
+            from { 
+                text-shadow: 
+                    0 0 10px var(--glow),
+                    3px 3px 6px var(--shadow);
+            }
+            to { 
+                text-shadow: 
+                    0 0 20px var(--glow),
+                    0 0 30px var(--glow),
+                    3px 3px 6px var(--shadow);
+            }
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+        
+        .countdown-display {
+            background: var(--bg-secondary);
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 3rem auto;
+            max-width: 700px;
+            position: relative;
+            box-shadow: 
+                0 0 30px var(--glow),
+                inset 0 0 20px rgba(0, 0, 0, 0.3),
+                0 10px 30px var(--shadow);
+            overflow: hidden;
+            animation: pulseGlow 3s infinite ease-in-out;
+            direction: ltr;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 30px var(--glow),
+                    inset 0 0 20px rgba(0, 0, 0, 0.3),
+                    0 10px 30px var(--shadow);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 50px var(--glow),
+                    inset 0 0 30px rgba(0, 0, 0, 0.4),
+                    0 15px 40px var(--shadow);
+            }
+        }
+        
+        .countdown-display::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--accent-green), var(--text-primary), var(--accent-gold));
+            border-radius: 22px;
+            z-index: -1;
+            animation: borderRotate 4s linear infinite;
+        }
+        
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .countdown-timer {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            font-family: 'Orbitron', monospace;
+            text-shadow: 
+                0 0 10px var(--glow),
+                2px 2px 4px var(--shadow);
+            letter-spacing: 0.1em;
+            direction: ltr;
+            animation: timerFlicker 0.1s infinite alternate;
+        }
+        
+        @keyframes timerFlicker {
+            0% { opacity: 1; }
+            100% { opacity: 0.95; }
+        }
+        
+        .timer-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+        
+        .raw-times {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .raw-time-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 
+                0 0 10px var(--glow),
+                inset 0 0 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .raw-time-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 0 15px var(--glow),
+                0 5px 15px var(--shadow),
+                inset 0 0 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .raw-time-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+        }
+        
+        .raw-time-value {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            font-weight: 700;
+            text-shadow: 0 0 8px var(--glow);
+            animation: valueFlicker 0.2s infinite alternate;
+        }
+        
+        @keyframes valueFlicker {
+            0% { opacity: 1; }
+            100% { opacity: 0.9; }
+        }
+        
+        .flag-container {
+            position: fixed;
+            z-index: 10;
+        }
+        
+        .flag-israel {
+            top: 20px;
+            right: 20px;
+            animation: flagWave 3s infinite ease-in-out;
+        }
+        
+        .flag-usa {
+            top: 20px;
+            left: 20px;
+            animation: flagWave 3s infinite ease-in-out 1.5s;
+        }
+        
+        .flag-container svg {
+            width: 80px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px var(--shadow));
+            transition: transform 0.3s ease;
+        }
+        
+        .flag-container:hover svg {
+            transform: scale(1.1);
+        }
+        
+        @keyframes flagWave {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(1deg) scale(1.02); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(-1deg) scale(1.02); }
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            width: 70px;
+            height: 35px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 
+                0 0 10px var(--glow),
+                0 4px 8px var(--shadow);
+        }
+        
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 27px;
+            height: 27px;
+            background: radial-gradient(circle, var(--accent-gold), #cc8400);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 
+                0 0 10px var(--glow),
+                0 2px 4px var(--shadow);
+            animation: toggleGlow 2s infinite alternate ease-in-out;
+        }
+        
+        @keyframes toggleGlow {
+            from { box-shadow: 0 0 10px var(--glow), 0 2px 4px var(--shadow); }
+            to { box-shadow: 0 0 15px var(--glow), 0 4px 8px var(--shadow); }
+        }
+        
+        [data-theme="light"] .theme-toggle::before {
+            transform: translateX(33px);
+        }
+        
+        .target-date {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            border: 2px solid var(--border-color);
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            box-shadow: 
+                0 0 15px var(--glow),
+                0 5px 15px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .target-date::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: scanLine 3s infinite;
+        }
+        
+        @keyframes scanLine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .expired {
+            color: var(--accent-red);
+            font-size: 3rem;
+            font-weight: 900;
+            text-shadow: 
+                0 0 20px rgba(255, 0, 0, 0.5),
+                2px 2px 4px var(--shadow);
+            animation: alarmBlink 0.5s infinite alternate;
+        }
+        
+        @keyframes alarmBlink {
+            from { opacity: 1; }
+            to { opacity: 0.3; }
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            white-space: nowrap;
+            text-shadow: 0 0 5px var(--glow);
+        }
+        
+        /* Tactical grid lines */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -2;
+            animation: gridPulse 10s infinite ease-in-out;
+        }
+        
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.1; }
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .countdown-timer {
+                font-size: 2.2rem;
+            }
+            
+            .countdown-display {
+                padding: 1.5rem;
+                margin: 2rem auto;
+            }
+            
+            .flag-container svg {
+                width: 60px;
+            }
+            
+            .theme-toggle {
+                width: 60px;
+                height: 30px;
+                top: 20px;
+            }
+            
+            .theme-toggle::before {
+                width: 22px;
+                height: 22px;
+                top: 2px;
+                left: 2px;
+            }
+            
+            [data-theme="light"] .theme-toggle::before {
+                transform: translateX(28px);
+            }
+            
+            .footer {
+                font-size: 0.9rem;
+                bottom: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .countdown-timer {
+                font-size: 1.8rem;
+            }
+            
+            .countdown-display {
+                padding: 1rem;
+            }
+            
+            .flag-container svg {
+                width: 50px;
+            }
+        }
+        
+        /* Tablet */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .countdown-timer {
+                font-size: 3rem;
+            }
+            
+            .flag-container svg {
+                width: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+
+    
+    <div class="theme-toggle" onclick="toggleTheme()"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">HOW MUCH LEFT</h1>
+            <p class="subtitle">CRITICAL MISSION COUNTDOWN</p>
+        </div>
+        
+        <div class="countdown-display">
+            <div id="countdown-timer" class="countdown-timer">00:00:00:00</div>
+            <div class="timer-label">DAYS : HOURS : MINUTES : SECONDS</div>
+            
+            <div class="raw-times">
+                <div class="raw-time-item">
+                    <span class="raw-time-label">TOTAL HOURS:</span>
+                    <span id="total-hours" class="raw-time-value">0</span>
+                </div>
+                <div class="raw-time-item">
+                    <span class="raw-time-label">TOTAL MINUTES:</span>
+                    <span id="total-minutes" class="raw-time-value">0</span>
+                </div>
+                <div class="raw-time-item">
+                    <span class="raw-time-label">TOTAL SECONDS:</span>
+                    <span id="total-seconds" class="raw-time-value">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="target-date">
+            <strong>🎯 TARGET DATE: 29/09/2025 AT 14:00 🎯</strong>
+        </div>
+    </div>
+    
+    <div class="footer">
+        with ❤️ by MeirJC
+    </div>
+
+    <script>
+        // Theme handling
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Set initial theme based on preference or system
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            const theme = savedTheme || systemTheme;
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark');
+            }
+        });
+
+        // Countdown functionality with continuous format
+        function updateCountdown() {
+            const targetDate = new Date('2025-09-29T14:00:00+03:00'); // Israel timezone (UTC+3)
+            const now = new Date();
+            const difference = targetDate - now;
+
+            const timerElement = document.getElementById('countdown-timer');
+
+            if (difference <= 0) {
+                timerElement.innerHTML = '<div class="expired">🚨 TIME IS UP! 🚨</div>';
+                document.getElementById('total-hours').textContent = '0';
+                document.getElementById('total-minutes').textContent = '0';
+                document.getElementById('total-seconds').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            // Format as continuous timer: DD:HH:MM:SS (left to right)
+            const formattedTime = `${days.toString().padStart(2, '0')}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            timerElement.textContent = formattedTime;
+
+            // Calculate and display raw totals
+            const totalHours = Math.floor(difference / (1000 * 60 * 60));
+            const totalMinutes = Math.floor(difference / (1000 * 60));
+            const totalSecondsRemaining = Math.floor(difference / 1000);
+
+            document.getElementById('total-hours').textContent = totalHours.toLocaleString();
+            document.getElementById('total-minutes').textContent = totalMinutes.toLocaleString();
+            document.getElementById('total-seconds').textContent = totalSecondsRemaining.toLocaleString();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+
+        // Add some military-style console logging for fun
+        console.log('🇮🇱🇺🇸 ═══════════════════════════════════════ 🇺🇸🇮🇱');
+        console.log('    MILITARY TACTICAL COUNTDOWN SYSTEM    ');
+        console.log('              INITIALIZED                 ');
+        console.log('═════════════════════════════════════════');
+        console.log('Target: 29/09/2025 14:00 IST');
+        console.log('Status: OPERATIONAL');
+        console.log('Classification: UNCLASSIFIED');
+        console.log('Developed with ❤️ by MeirJC');
+        console.log('═════════════════════════════════════════');
+        
+        // Debug logging for total calculations
+        setInterval(() => {
+            const targetDate = new Date('2025-09-29T14:00:00+03:00');
+            const now = new Date();
+            const difference = targetDate - now;
+            
+            if (difference > 0) {
+                const totalHours = Math.floor(difference / (1000 * 60 * 60));
+                const totalMinutes = Math.floor(difference / (1000 * 60));
+                const totalSeconds = Math.floor(difference / 1000);
+                
+                console.log(`Debug - Total Hours: ${totalHours}, Total Minutes: ${totalMinutes}, Total Seconds: ${totalSeconds}`);
+            }
+        }, 5000); // Log every 5 seconds for debugging
+    </script>
+</body>
+</html>
